@@ -61,7 +61,6 @@ class YouTubeAlgorithmReset {
         
         this.startStatusUpdates();
         
-        // Start processing immediately
         this.processPage();
         
         this.updateStatus();
@@ -108,21 +107,19 @@ class YouTubeAlgorithmReset {
                 }
                 this.updateStatus();
             }
-        }, 500); // More frequent updates
+        }, 500);
     }
     
     async processPage() {
         if (!this.isRunning) return;
         
         try {
-            // Check video count limit before processing
             if (this.config.mode === 'video_count' && this.videosProcessed >= this.config.videoCount) {
                 console.log(`Video count limit reached (${this.videosProcessed}/${this.config.videoCount}), stopping...`);
                 this.stop();
                 return;
             }
             
-            // Check time limit
             if (this.config.mode === 'time_duration') {
                 const elapsed = Date.now() - this.startTime;
                 if (elapsed >= this.config.duration) {
@@ -132,17 +129,14 @@ class YouTubeAlgorithmReset {
                 }
             }
             
-            // Process videos on current page
             const processedCount = await this.clickActionButtons();
             
             if (processedCount > 0) {
                 this.videosProcessed += processedCount;
                 console.log(`Processed ${processedCount} videos. Total: ${this.videosProcessed}`);
                 
-                // Update status immediately after processing
                 this.updateStatus();
                 
-                // Check if we've reached the target after processing
                 if (this.config.mode === 'video_count' && this.videosProcessed >= this.config.videoCount) {
                     console.log(`Video count target reached (${this.videosProcessed}/${this.config.videoCount}), stopping...`);
                     this.stop();
@@ -150,7 +144,6 @@ class YouTubeAlgorithmReset {
                 }
             }
             
-            // Try to load more content
             const hasNewContent = await this.loadMoreContent();
             
             if (!hasNewContent) {
@@ -159,7 +152,6 @@ class YouTubeAlgorithmReset {
                 return;
             }
             
-            // Continue processing after delay
             setTimeout(() => {
                 if (this.isRunning) {
                     this.processPage();
@@ -181,7 +173,6 @@ class YouTubeAlgorithmReset {
         for (const video of videos) {
             if (!this.isRunning) break;
             
-            // Check limits before processing each video
             if (this.config.mode === 'video_count') {
                 const totalAfterThis = this.videosProcessed + processedCount + 1;
                 if (totalAfterThis > this.config.videoCount) {
@@ -205,14 +196,12 @@ class YouTubeAlgorithmReset {
                     const newTotal = this.videosProcessed + processedCount;
                     console.log(`Successfully processed video ${newTotal}`);
                     
-                    // For video count mode, check if we should stop after each successful click
                     if (this.config.mode === 'video_count' && newTotal >= this.config.videoCount) {
                         console.log(`Reached target of ${this.config.videoCount} videos, breaking loop`);
                         break;
                     }
                 }
                 
-                // Small delay between videos
                 await this.sleep(Math.max(200, this.config.delay / 4));
                 
             } catch (error) {
@@ -262,7 +251,6 @@ class YouTubeAlgorithmReset {
     
     async clickActionForVideo(videoElement) {
         try {
-            // Mark as processed first
             videoElement.setAttribute('data-reset-processed', 'true');
             
             const menuSelectors = [
@@ -285,12 +273,11 @@ class YouTubeAlgorithmReset {
                 return false;
             }
             
-            // Scroll element into view if needed
             menuButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
             await this.sleep(200);
             
             menuButton.click();
-            await this.sleep(800); // Longer wait for menu to appear
+            await this.sleep(800);
             
             const actionButton = this.findActionButton();
             
@@ -298,7 +285,6 @@ class YouTubeAlgorithmReset {
                 actionButton.click();
                 await this.sleep(500);
                 
-                // Look for confirmation dialog
                 const confirmButton = document.querySelector(
                     'yt-button-renderer[dialog-confirm], ' +
                     '[role="button"][aria-label*="confirm"], ' +
@@ -313,7 +299,6 @@ class YouTubeAlgorithmReset {
                 return true;
             } else {
                 console.log('Action button not found, closing menu');
-                // Click somewhere else to close menu
                 document.body.click();
                 await this.sleep(300);
                 return false;
@@ -351,7 +336,6 @@ class YouTubeAlgorithmReset {
             }
         }
         
-        // Fallback for channel recommendation
         if (actionType === 'dont_recommend_channel') {
             for (const item of menuItems) {
                 const text = item.textContent.toLowerCase().trim();
@@ -369,11 +353,9 @@ class YouTubeAlgorithmReset {
         const initialHeight = document.documentElement.scrollHeight;
         const initialVideoCount = document.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer').length;
         
-        // Scroll to bottom
         window.scrollTo(0, document.documentElement.scrollHeight);
         
-        // Wait for content to load
-        await this.sleep(3000); // Increased wait time
+        await this.sleep(3000);
         
         const newHeight = document.documentElement.scrollHeight;
         const newVideoCount = document.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer').length;
@@ -387,7 +369,6 @@ class YouTubeAlgorithmReset {
             console.log(`No new content loaded (attempt ${this.noNewContentCount}/${this.maxNoNewContentAttempts})`);
             
             if (this.noNewContentCount >= this.maxNoNewContentAttempts) {
-                // Try scroll reset
                 window.scrollTo(0, 0);
                 await this.sleep(1000);
                 window.scrollTo(0, document.documentElement.scrollHeight);
@@ -406,7 +387,7 @@ class YouTubeAlgorithmReset {
                 }
             }
             
-            return true; // Continue trying
+            return true;
         }
     }
     
@@ -422,7 +403,7 @@ class YouTubeAlgorithmReset {
     updateStatus() {
         if (chrome.runtime && chrome.runtime.sendMessage) {
             const status = this.getStatus();
-            console.log('Updating status:', status); // Debug log
+            console.log('Updating status:', status);
             chrome.runtime.sendMessage({
                 action: 'statusUpdate',
                 status: status
@@ -437,7 +418,6 @@ class YouTubeAlgorithmReset {
     }
 }
 
-// Global variables and initialization
 let youtubeReset = null;
 
 let lastUrl = location.href;
