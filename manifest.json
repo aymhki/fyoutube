@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "fyoutube",
+  "version": "1.0",
+  "description": "Automatically clicks 'Not interested' on YouTube videos to reset recommendations",
+  "icons": {
+    "16": "fyoutube_icon_1024.png",
+    "32": "fyoutube_icon_1024.png",
+    "48": "fyoutube_icon_1024.png",
+    "128": "fyoutube_icon_1024.png"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "YouTube Algorithm Reset"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

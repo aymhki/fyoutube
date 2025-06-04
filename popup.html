@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <style>
+            body {
+                width: 320px;
+                padding: 20px;
+                font-family: Arial, sans-serif;
+            }
+            .control-group {
+                margin-bottom: 15px;
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+            input, select, button {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+            .time-input-group {
+                display: flex;
+                gap: 10px;
+            }
+            .time-input-group input {
+                flex: 1;
+            }
+            button {
+                background-color: #ff0000;
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            button:hover {
+                background-color: #cc0000;
+            }
+            button:disabled {
+                background-color: #666;
+                cursor: not-allowed;
+            }
+            .status {
+                margin-top: 10px;
+                padding: 10px;
+                border-radius: 4px;
+                text-align: center;
+                font-weight: bold;
+            }
+            .status.active {
+                background-color: #d4edda;
+                color: #155724;
+            }
+            .status.inactive {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+            .stats {
+                margin-top: 10px;
+                font-size: 12px;
+                color: #666;
+            }
+        </style>
+        <title>
+            YouTube Algorithm Reset Tool
+        </title>
+    </head>
+    <body>
+        <h3>YouTube Algorithm Reset</h3>
+        
+        <div class="control-group">
+            <label for="mode">Mode:</label>
+            <select id="mode">
+                <option value="video_count">By Video Count</option>
+                <option value="time_duration">By Time Duration</option>
+                <option value="manual">Manual Control</option>
+            </select>
+        </div>
+        
+        <div class="control-group" id="video-count-group">
+            <label for="videoCount">Number of Videos:</label>
+            <input type="number" id="videoCount" value="100" min="1" max="1000">
+        </div>
+        
+        <div class="control-group" id="time-duration-group" style="display: none;">
+            <label for="timeUnit">Time Unit:</label>
+            <select id="timeUnit">
+                <option value="minutes">Minutes</option>
+                <option value="seconds">Seconds</option>
+            </select>
+            <label for="duration">Duration:</label>
+            <input type="number" id="duration" value="1" min="1" max="3600">
+        </div>
+        
+        <div class="control-group">
+            <label for="actionType">Action Type:</label>
+            <select id="actionType">
+                <option value="not_interested">Not Interested</option>
+                <option value="dont_recommend_channel">Don't Recommend Channel</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="delay">Delay between actions (ms):</label>
+            <input type="number" id="delay" value="500" min="100" max="5000">
+        </div>
+        
+        <button id="startBtn">Start Reset</button>
+        <button id="stopBtn" disabled>Stop Reset</button>
+        
+        <div id="status" class="status inactive">
+            Status: Inactive
+        </div>
+        
+        <div id="stats" class="stats">
+            Videos processed: 0<br>
+            Time elapsed: 0s<br>
+            Time remaining: N/A
+        </div>
+        
+        <script src="popup.js"></script>
+    </body>
+</html>
