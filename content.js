@@ -136,12 +136,12 @@ class YouTubeAlgorithmReset {
                 console.log(`Processed ${processedCount} videos. Total: ${this.videosProcessed}`);
                 
                 this.updateStatus();
-                
-                if (this.config.mode === 'video_count' && this.videosProcessed >= this.config.videoCount) {
-                    console.log(`Video count target reached (${this.videosProcessed}/${this.config.videoCount}), stopping...`);
-                    this.stop();
-                    return;
-                }
+            }
+            
+            if (this.config.mode === 'video_count' && this.videosProcessed >= this.config.videoCount) {
+                console.log(`Video count target reached (${this.videosProcessed}/${this.config.videoCount}), stopping...`);
+                this.stop();
+                return;
             }
             
             const hasNewContent = await this.loadMoreContent();
@@ -259,7 +259,8 @@ class YouTubeAlgorithmReset {
                 '#menu-button',
                 'button[aria-label*="More options"]',
                 'yt-icon-button#button[aria-label*="More"]',
-                'button[aria-label="Action menu"]'
+                'button[aria-label="Action menu"]',
+                
             ];
             
             let menuButton = null;
@@ -277,13 +278,13 @@ class YouTubeAlgorithmReset {
             await this.sleep(200);
             
             menuButton.click();
-            await this.sleep(800);
+            await this.sleep(200);
             
             const actionButton = this.findActionButton();
             
             if (actionButton) {
                 actionButton.click();
-                await this.sleep(500);
+                await this.sleep(200);
                 
                 const confirmButton = document.querySelector(
                     'yt-button-renderer[dialog-confirm], ' +
@@ -316,7 +317,7 @@ class YouTubeAlgorithmReset {
             '[role="menuitem"], ' +
             'tp-yt-paper-item, ' +
             'ytd-menu-navigation-item-renderer, ' +
-            'yt-formatted-string' +
+            'yt-formatted-string, ' +
             'yt-list-view-model'
         );
         
@@ -401,9 +402,10 @@ class YouTubeAlgorithmReset {
     }
     
     updateStatus() {
+        const status = this.getStatus();
+        console.log('Updating status:', status);
+        
         if (chrome.runtime && chrome.runtime.sendMessage) {
-            const status = this.getStatus();
-            console.log('Updating status:', status);
             chrome.runtime.sendMessage({
                 action: 'statusUpdate',
                 status: status
@@ -411,6 +413,15 @@ class YouTubeAlgorithmReset {
                 console.log('Status update failed:', error);
             });
         }
+        
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            if (tabs[0]) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    action: 'statusUpdate',
+                    status: status
+                }).catch(() => {});
+            }
+        });
     }
     
     sleep(ms) {

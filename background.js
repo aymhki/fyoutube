@@ -4,8 +4,10 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'statusUpdate') {
-        chrome.runtime.sendMessage(request).catch(() => {
-
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            if (tabs[0]) {
+                chrome.tabs.sendMessage(tabs[0].id, request).catch(() => {});
+            }
         });
     }
 });
